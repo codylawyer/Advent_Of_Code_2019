@@ -1,14 +1,14 @@
-def runProgram(program,debug=False):
-    ip = 0
+def runProgram(program,ip,inputs=[],inputMode='User',debug=False):
     halt = False
-    while not(halt):
-        [program,ip,halt] = doInstruction(program,ip,debug)
+    waiting = False
+    outputs = []
+    while not(halt) and not(waiting):
+        [program,ip,inputs,outputs,halt,waiting] = doInstruction(program,ip,inputs,outputs,inputMode,debug)
         if debug:
-            pass
-            #print(program)
-    return program
+            print(program)
+    return [program,ip,outputs,halt,waiting]
 
-def doInstruction(program,ip,debug=False):
+def doInstruction(program,ip,inputs,outputs,inputMode,debug=False):
     opcode = program[ip]
 
     opcodeString = str(opcode)
@@ -39,7 +39,7 @@ def doInstruction(program,ip,debug=False):
         opcode = int(opcodeString[3:])
 
     if opcode == 99:
-        return [program,ip,True]
+        return [program,ip,inputs,outputs,True,False]
 
     if opcode == 1 or opcode == 2 or opcode == 7 or opcode == 8:
         param1 = program[ip+1]
@@ -81,6 +81,7 @@ def doInstruction(program,ip,debug=False):
         if debug:
             print(opcodeString,param1Value)
 
+    waiting = False
     # add
     if opcode == 1:
         program[param3Value] = int(param1Value + param2Value)
@@ -91,13 +92,23 @@ def doInstruction(program,ip,debug=False):
         ip += 4
     # store input
     elif opcode == 3:
-        inputValue = input('Input: ')
-        program[param1] = int(inputValue)
-        ip += 2
+        if inputMode == 'User': #we didn't pass any inputs so get from console
+            inputValue = input('Input: ')
+            program[param1] = int(inputValue)
+            ip += 2
+        else: # input value is first value in inputs list
+            if len(inputs) > 0:
+                inputValue = inputs.pop(0)
+                program[param1] = int(inputValue)
+                ip += 2
+            else:
+                waiting = True
+        
     #output value
     elif opcode == 4:
         outputValue = param1Value
-        print(outputValue)
+        outputs.append(outputValue)
+        print('Output:',outputValue)
         ip += 2
     #jump-if-true
     elif opcode == 5:
@@ -128,6 +139,6 @@ def doInstruction(program,ip,debug=False):
     # broken
     else:
         print('Invalid Opcode: ' + str(opcode))
-        return [program,ip,True]
+        return [program,ip,inputs,outputs,True,False]
 
-    return [program,ip,False]
+    return [program,ip,inputs,outputs,False,waiting]
