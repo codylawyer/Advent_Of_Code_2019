@@ -1,18 +1,18 @@
-def runProgram(program,ip=0,inputs=[],inputMode='User',debug=False):
+def runProgram(program,ip=0,relativeBase=0,inputs=[],inputMode='User',debug=False):
     halt = False
     waiting = False
-    relativeBase = 0
 
-    programHm = {}
-    for i,val in enumerate(program):
-        programHm[i] = val
+    if not(type(program) is dict):
+        programHm = {}
+        for i,val in enumerate(program):
+            programHm[i] = val
 
-    program = programHm
+        program = programHm
     outputs = []
     while not(halt) and not(waiting):
         [program,ip,relativeBase,inputs,outputs,halt,waiting] = doInstruction(program,ip,relativeBase,inputs,outputs,inputMode,debug)
         if debug:
-            print(program)
+            pass #print(program)
     return [program,ip,relativeBase,outputs,halt,waiting]
 
 def doInstruction(program,ip,relativeBase,inputs,outputs,inputMode,debug=False):
@@ -92,7 +92,7 @@ def doInstruction(program,ip,relativeBase,inputs,outputs,inputMode,debug=False):
     elif opcode == 4:
         outputValue = getParam(program,param1,param1Mode,relativeBase)
         outputs.append(outputValue)
-        print('Output:',outputValue)
+        #print('Output:',outputValue)
         ip += 2
     #jump-if-true
     elif opcode == 5:
