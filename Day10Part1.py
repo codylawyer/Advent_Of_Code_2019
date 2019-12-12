@@ -14,7 +14,8 @@ def clearLineOfSight(asteroid1,asteroid2,asteroids):
         for i in range(1,steps):
             x = i*xDir+startX
             y = slope*x + b
-            if (abs(abs(y) - abs(round(y))) < np.finfo(float).eps):
+            #print(abs(abs(y) - abs(round(y))))
+            if (abs(abs(y) - abs(round(y))) < 1e-14):
                 y = int(round(y))
                 x = int(x)
                 if (x,y) in asteroids.keys():
